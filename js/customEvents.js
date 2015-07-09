@@ -108,28 +108,35 @@ function elasticAnim() {
 	requestAnimationFrame(startElastic);							
 }
 
-function bounceAnim() {	
+function easeFunc(k) {
+	if ( k < ( 1 / 2.75 ) ) {
+	return 7.5625 * k * k;
+	} else if ( k < ( 2 / 2.75 ) ) {
+		return 7.5625 * ( k -= ( 1.5 / 2.75 ) ) * k + 0.75;
+	} else if ( k < ( 2.5 / 2.75 ) ) {
+		return 7.5625 * ( k -= ( 2.25 / 2.75 ) ) * k + 0.9375;
+	} else {
+		return 7.5625 * ( k -= ( 2.625 / 2.75 ) ) * k + 0.984375;
+	}
+}
+
+function bounceAnim(div) {	
 	var startBounce = function () {
 		startTime = new Date().getTime();
 		runBounce();
 	}
-	var bounce = document.getElementById('bounce-anim');					
-
-	var easeFunc = function(k) {
-		if ( k < ( 1 / 2.75 ) ) {
-		return 7.5625 * k * k;
-		} else if ( k < ( 2 / 2.75 ) ) {
-			return 7.5625 * ( k -= ( 1.5 / 2.75 ) ) * k + 0.75;
-		} else if ( k < ( 2.5 / 2.75 ) ) {
-			return 7.5625 * ( k -= ( 2.25 / 2.75 ) ) * k + 0.9375;
-		} else {
-			return 7.5625 * ( k -= ( 2.625 / 2.75 ) ) * k + 0.984375;
-		}
-	}
+	var bounce = document.getElementById(div);					
+	
 	var runBounce = function (e) {			
 		time = new Date().getTime() - startTime;
-		k = time / duration;								
-		bounce.style.left = startX + (endX - startX) * easeFunc(k) + "px";			    
+		k = time / duration;	
+		if (div == 'bounce-anim') {
+			bounce.style.left = startX + (endX - startX) * easeFunc(k) + "px";			    	
+		} else {
+			endX = 300;
+			bounce.style.top = startX + (endX - startX) * easeFunc(k) + "px";			    	
+		}
+		
 		if(k < 1) requestAnimationFrame(runBounce);
 	}
 	requestAnimationFrame(startBounce);
@@ -145,29 +152,27 @@ function checkForSpace(e) {
 		case 'ease-out-anim': easeOutAnim(); break;				
 		case 'ease-in-anim': easeInAnim(); break;				
 		case 'elastic-anim': elasticAnim(); break;		
-		case 'bounce-anim': bounceAnim(); break;		
+		case 'bounce-anim': bounceAnim('bounce-anim'); break;		
 		default: return false;
 	}
 }
 
-function designDev(e) {
-	document.getElementById('d-v-d-container').style.display = 'block';
-}
 var i = 1;
 function summary(e) {	
-	document.getElementById('d-v-d-container').style.display = 'none';
-	var circle = document.getElementById('bullet-'+i);
-	circle.style.display = 'block';
-	circle.className = 'circle large bullet-'+i;
+	console.log('hitting space');
 	if (i > 1) { 
-		last = document.getElementById('bullet-'+(i-1)); 		
-  	setTimeout(function(){ last.childNodes[0].className = 'fadeOut'; }, 20);
-  }
-	i++;
-}
+		setTimeout(function(){ document.getElementById('bullet-'+(i-1)).className = 'fadeOut'; }, 200);
+	}
+	// var circle = document.getElementById('bullet-'+i);
+	// circle.style.display = 'block';
+	bounceAnim('bullet-'+i);
 
-function keyframe(e) {
-	document.getElementById('d-v-d-container').style.display = 'none';
+	// circle.className = 'circle large bullet-'+i;
+	// if (i > 1) { 
+	// 	last = document.getElementById('bullet-'+(i-1)); 		
+ //  	setTimeout(function(){ last.childNodes[0].className = 'fadeOut'; }, 20);
+ //  }
+	i++;
 }
 
 
@@ -185,11 +190,9 @@ Reveal.addEventListener( 'slidechanged', function( event ) {
 		switch( event.currentSlide.dataset.state ) {				
 			// case 'logoSlide': document.getElementById('logoAnimate').className = 'fjs logoAnimation'; break;
 			case 'summary': summary(event); break;
-			case 'design-dev': designDev(event); break;
 			case 'grid-demo': gridDemo(event); break;
 			case 'ferrari': closeGrid(event); break;
 			case 'buttons': closeGrid(event); break;
-			case 'keyframe': keyframe(event); break;
 			default: return false;			
 		}				
 	}
